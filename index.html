@@ -5,304 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ANNA RACHIM</title>
     <style>
-        :root {
-            --bg-color: #0d0d0d;
-            --card-bg: #161618;
-            --card-border: #26262a;
-            --text-main: #ffffff;
-            --text-sub: #8e8e93;
-            --modal-bg: #1c1c1e;
-        }
-
-        body.light-theme {
-            --bg-color: #f2f2f7;
-            --card-bg: #ffffff;
-            --card-border: #e5e5ea;
-            --text-main: #000000;
-            --text-sub: #6c6c70;
-            --modal-bg: #ffffff;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            padding: 20px 16px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 400px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .header {
-            font-size: 16px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            cursor: pointer;
-            transition: transform 0.15s ease, background 0.15s ease;
-        }
-
-        .card:active {
-            transform: scale(0.97);
-            background: #202024;
-        }
-
-        .card-head {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .icon {
-            font-size: 15px;
-            line-height: 1;
-        }
-
-        .title {
-            font-size: 15px;
-            font-weight: 600;
-        }
-
-        .description {
-            font-size: 13px;
-            color: var(--text-sub);
-            line-height: 1.3;
-        }
-
-        /* Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.25s ease, visibility 0.25s ease;
-            z-index: 1000;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .modal {
-            background: var(--modal-bg);
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-            padding: 20px;
-            width: 100%;
-            max-width: 400px;
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
-            border-t: 1px solid var(--card-border);
-        }
-
-        .modal-overlay.active .modal {
-            transform: translateY(0);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            color: var(--text-sub);
-            font-size: 22px;
-            cursor: pointer;
-            line-height: 1;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            margin-bottom: 12px;
-        }
-
-        .input-group label {
-            font-size: 11px;
-            color: var(--text-sub);
-        }
-
-        .input-group input {
-            background: #26262a;
-            border: 1px solid var(--card-border);
-            border-radius: 10px;
-            padding: 10px 12px;
-            color: var(--text-main);
-            font-size: 13px;
-            outline: none;
-        }
-
-        .theme-toggle {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-top: 1px solid var(--card-border);
-            margin-bottom: 12px;
-            font-size: 13px;
-        }
-
-        .btn-save {
-            background: var(--text-main);
-            color: var(--bg-color);
-            border: none;
-            border-radius: 10px;
-            padding: 12px;
-            width: 100%;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-        }
+        :root { --bg-color: #0d0d0d; --card-bg: #161618; --card-border: #26262a; --text-main: #ffffff; --modal-bg: #1c1c1e; }
+        body { background-color: var(--bg-color); color: var(--text-main); font-family: sans-serif; padding: 20px; }
+        .container { max-width: 400px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+        .hidden { display: none; }
+        .modal-overlay { position: fixed; top:0; left:0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .modal { background: var(--modal-bg); padding: 20px; border-radius: 20px; width: 90%; max-width: 400px; }
+        input { width: 100%; padding: 12px; margin: 8px 0; background: #26262a; border: none; border-radius: 10px; color: white; }
+        button { width: 100%; padding: 12px; background: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="header">ANNA RACHIM</div>
-
-        <div class="card">
-            <div class="card-head">
-                <span class="icon">✦</span>
-                <span class="title">AI Assistant</span>
+    <!-- Экран регистрации (показывается, если не вошел) -->
+    <div id="authScreen" class="modal-overlay hidden">
+        <div class="modal">
+            <h2 id="modalTitle">Регистрация</h2>
+            <div id="step1">
+                <input type="text" id="regName" placeholder="Имя">
+                <input type="email" id="regEmail" placeholder="Email">
+                <button onclick="sendCode()">Получить код (введи любой)</button>
             </div>
-            <div class="description">Твой интеллектуальный помощник.</div>
-        </div>
-
-        <div class="card">
-            <div class="card-head">
-                <span class="icon">◇</span>
-                <span class="title">Мои проекты</span>
+            <div id="step2" class="hidden">
+                <input type="text" id="regCode" placeholder="Код (1234)">
+                <button onclick="verifyCode()">Подтвердить</button>
             </div>
-            <div class="description">Создавай и сохраняй свои идеи.</div>
-        </div>
-
-        <div class="card" id="profileCard">
-            <div class="card-head">
-                <span class="icon">◎</span>
-                <span class="title" id="profileTitle">Профиль</span>
-            </div>
-            <div class="description" id="profileDesc">Настрой своё имя и внешность.</div>
-        </div>
-
-        <div class="card">
-            <div class="card-head">
-                <span class="icon">↗</span>
-                <span class="title">Активность</span>
-            </div>
-            <div class="description">Твоя статистика и действия.</div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal">
-            <div class="modal-header">
-                <span>Профиль</span>
-                <button class="close-btn" id="closeModal">&times;</button>
-            </div>
-            <div class="input-group">
-                <label>Имя</label>
-                <input type="text" id="nameInput" placeholder="Имя">
-            </div>
-            <div class="input-group">
-                <label>Username</label>
-                <input type="text" id="usernameInput" placeholder="@username">
-            </div>
-            <div class="theme-toggle">
-                <span>Светлая тема</span>
-                <input type="checkbox" id="themeSwitch">
-            </div>
-            <button class="btn-save" id="saveBtn">Сохранить</button>
-        </div>
+    <!-- Основной сайт -->
+    <div class="container">
+        <div id="welcomeText">Привет!</div>
+        <div class="card" style="background:#161618; padding:20px; border-radius:16px;">Профиль настроен</div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const modal = document.getElementById('modalOverlay');
-            const profileCard = document.getElementById('profileCard');
-            const closeModal = document.getElementById('closeModal');
-            const saveBtn = document.getElementById('saveBtn');
-            const themeSwitch = document.getElementById('themeSwitch');
+        const authScreen = document.getElementById('authScreen');
+        
+        // Проверка: был ли вход ранее
+        if (!localStorage.getItem('isLoggedIn')) {
+            authScreen.classList.remove('hidden');
+        } else {
+            document.getElementById('welcomeText').innerText = 'Привет, ' + localStorage.getItem('userName') + '!';
+        }
 
-            profileCard.addEventListener('click', () => modal.classList.add('active'));
-            closeModal.addEventListener('click', () => modal.classList.remove('active'));
+        function sendCode() {
+            const name = document.getElementById('regName').value;
+            if(!name) return alert('Введите имя');
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.remove('hidden');
+        }
 
-            themeSwitch.addEventListener('change', () => {
-                if (themeSwitch.checked) document.body.classList.add('light-theme');
-                else document.body.classList.remove('light-theme');
-            });
-
-            saveBtn.addEventListener('click', () => {
-                const name = document.getElementById('nameInput').value.trim();
-                const user = document.getElementById('usernameInput').value.trim();
-                
-                if (name) {
-                    document.getElementById('profileTitle').innerText = name;
-                    localStorage.setItem('p_name', name);
-                }
-                if (user) {
-                    document.getElementById('profileDesc').innerText = user;
-                    localStorage.setItem('p_user', user);
-                }
-                localStorage.setItem('p_theme', themeSwitch.checked ? 'light' : 'dark');
-                modal.classList.remove('active');
-            });
-
-            const savedName = localStorage.getItem('p_name');
-            const savedUser = localStorage.getItem('p_user');
-            const savedTheme = localStorage.getItem('p_theme');
-
-            if (savedName) {
-                document.getElementById('profileTitle').innerText = savedName;
-                document.getElementById('nameInput').value = savedName;
+        function verifyCode() {
+            const code = document.getElementById('regCode').value;
+            if(code === '1234') {
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userName', document.getElementById('regName').value);
+                location.reload();
+            } else {
+                alert('Неверный код. Используй 1234');
             }
-            if (savedUser) {
-                document.getElementById('profileDesc').innerText = savedUser;
-                document.getElementById('usernameInput').value = savedUser;
-            }
-            if (savedTheme === 'light') {
-                document.body.classList.add('light-theme');
-                themeSwitch.checked = true;
-            }
-        });
+        }
     </script>
 </body>
 </html>
