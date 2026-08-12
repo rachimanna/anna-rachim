@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANNA RACHIM</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,body{
+    min-height:100%;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#050507;
+    color:white;
+}
+
+body{
+    overflow-x:hidden;
+}
+
+button,input{
+    font-family:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+/* BACKGROUND */
+
+.background{
+    position:fixed;
+    inset:0;
+    z-index:-10;
+    overflow:hidden;
+    background:
+        radial-gradient(circle at 15% 20%,rgba(111,62,255,.22),transparent 34%),
+        radial-gradient(circle at 85% 75%,rgba(0,150,255,.16),transparent 35%),
+        #050507;
+}
+
+.glow{
+    position:absolute;
+    width:400px;
+    height:400px;
+    border-radius:50%;
+    filter:blur(110px);
+    opacity:.35;
+    animation:float 12s ease-in-out infinite alternate;
+}
+
+.glow.one{
+    background:#713cff;
+    top:-150px;
+    left:-150px;
+}
+
+.glow.two{
+    background:#006eff;
+    right:-150px;
+    bottom:-150px;
+    animation-delay:2s;
+}
+
+@keyframes float{
+    from{transform:translate(0,0) scale(1)}
+    to{transform:translate(90px,60px) scale(1.2)}
+}
+
+/* LOADER */
+
+#loader{
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#050507;
+    transition:1s ease;
+}
+
+#loader.hide{
+    opacity:0;
+    visibility:hidden;
+}
+
+.loader-box{
+    width:80%;
+    max-width:360px;
+    text-align:center;
+}
+
+.loader-logo{
+    font-size:25px;
+    font-weight:bold;
+    letter-spacing:7px;
+    margin-bottom:28px;
+    animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+    0%,100%{opacity:.45}
+    50%{opacity:1}
+}
+
+.loader-line{
+    width:100%;
+    height:3px;
+    background:rgba(255,255,255,.08);
+    border-radius:20px;
+    overflow:hidden;
+}
+
+#progress{
+    width:0;
+    height:100%;
+    background:linear-gradient(90deg,#6b3cff,#009dff,#b14cff);
+    box-shadow:0 0 20px #7040ff;
+    transition:.1s;
+}
+
+.loading-text{
+    margin-top:14px;
+    font-size:10px;
+    letter-spacing:4px;
+    color:rgba(255,255,255,.4);
+}
+
+/* APP */
+
+#app{
+    opacity:0;
+    transition:1s;
+}
+
+#app.show{
+    opacity:1;
+}
+
+.page{
+    display:none;
+    min-height:100vh;
+    animation:pageIn .55s ease;
+}
+
+.page.active{
+    display:block;
+}
+
+@keyframes pageIn{
+    from{
+        opacity:0;
+        transform:translateY(18px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* NAVBAR */
+
+.navbar{
+    height:80px;
+    padding:0 7%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.brand{
+    font-size:14px;
+    font-weight:bold;
+    letter-spacing:4px;
+}
+
+.nav-btn{
+    padding:11px 20px;
+    color:#fff;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:30px;
+    transition:.3s;
+}
+
+.nav-btn:hover{
+    background:rgba(255,255,255,.12);
+    transform:translateY(-2px);
+}
+
+/* HOME */
+
+.hero{
+    min-height:calc(100vh - 80px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:30px 20px;
+}
+
+.hero-content{
+    width:100%;
+    max-width:720px;
+}
+
+.small-title{
+    color:rgba(255,255,255,.42);
+    font-size:11px;
+    letter-spacing:6px;
+    margin-bottom:20px;
+}
+
+.hero h1{
+    font-size:clamp(55px,14vw,110px);
+    line-height:.88;
+    letter-spacing:-6px;
+}
+
+.gradient{
+    background:linear-gradient(90deg,#fff,#9875ff,#55caff);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+}
+
+.hero-text{
+    color:rgba(255,255,255,.5);
+    max-width:480px;
+    margin:28px auto;
+    line-height:1.7;
+    font-size:15px;
+}
+
+.buttons{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    flex-wrap:wrap;
+}
+
+.primary,
+.secondary{
+    padding:15px 25px;
+    border-radius:14px;
+    font-size:14px;
+    transition:.3s;
+}
+
+.primary{
+    border:0;
+    color:white;
+    background:linear-gradient(110deg,#6840ff,#386cff);
+    box-shadow:0 10px 35px rgba(82,67,255,.25);
+}
+
+.primary:hover{
+    transform:translateY(-3px);
+    box-shadow:0 15px 45px rgba(82,67,255,.4);
+}
+
+.secondary{
+    color:#fff;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.12);
+}
+
+.secondary:hover{
+    transform:translateY(-3px);
+    background:rgba(255,255,255,.1);
+}
+
+/* AUTH */
+
+.auth-page{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:25px;
+}
+
+.auth-container{
+    width:100%;
+    max-width:430px;
+}
+
+.back{
+    background:none;
+    border:0;
+    color:rgba(255,255,255,.5);
+    margin-bottom:20px;
+    font-size:14px;
+}
+
+.auth-card{
+    padding:35px;
+    border-radius:28px;
+    background:rgba(255,255,255,.055);
+    border:1px solid rgba(255,255,255,.1);
+    backdrop-filter:blur(25px);
+    box-shadow:0 30px 80px rgba(0,0,0,.35);
+}
+
+.auth-icon{
+    width:50px;
+    height:50px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:16px;
+    background:linear-gradient(135deg,#6d42ff,#267cff);
+    box-shadow:0 10px 30px rgba(85,60,255,.3);
+    margin-bottom:25px;
+    font-size:22px;
+}
+
+.auth-card h2{
+    font-size:28px;
+    margin-bottom:8px;
+}
+
+.auth-card > p{
+    color:rgba(255,255,255,.45);
+    font-size:14px;
+    margin-bottom:28px;
+}
+
+.input-group{
+    margin-bottom:17px;
+}
+
+.input-group label{
+    display:block;
+    font-size:12px;
+    color:rgba(255,255,255,.5);
+    margin-bottom:8px;
+}
+
+.input-group input{
+    width:100%;
+    padding:14px 15px;
+    border-radius:13px;
+    border:1px solid rgba(255,255,255,.1);
+    outline:none;
+    color:#fff;
+    background:rgba(0,0,0,.25);
+    transition:.3s;
+}
+
+.input-group input:focus{
+    border-color:#7755ff;
+    box-shadow:0 0 0 3px rgba(119,85,255,.1);
+}
+
+.full{
+    width:100%;
+    margin-top:5px;
+}
+
+.switch{
+    text-align:center;
+    margin-top:22px;
+    color:rgba(255,255,255,.4);
+    font-size:13px;
+}
+
+.link{
+    border:0;
+    background:none;
+    color:#9c83ff;
+    font-weight:bold;
+}
+
+/* DASHBOARD */
+
+.dashboard{
+    min-height:100vh;
+}
+
+.dashboard-nav{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:20px 25px;
+    border-bottom:1px solid rgba(255,255,255,.07);
+}
+
+.logout{
+    padding:10px 17px;
+    border-radius:12px;
+    color:#ff8b9c;
+    background:rgba(255,80,110,.07);
+    border:1px solid rgba(255,80,110,.12);
+    transition:.3s;
+}
+
+.logout:hover{
+    background:rgba(255,80,110,.13);
+}
+
+.dashboard-content{
+    max-width:1100px;
+    margin:auto;
+    padding:45px 25px;
+}
+
+.welcome{
+    margin-bottom:35px;
+}
+
+.welcome small{
+    color:rgba(255,255,255,.4);
+}
+
+.welcome h2{
+    margin-top:8px;
+    font-size:34px;
+}
+
+.welcome p{
+    margin-top:10px;
+    color:rgba(255,255,255,.42);
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+}
+
+.card{
+    min-height:180px;
+    padding:25px;
+    border-radius:24px;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.09);
+    backdrop-filter:blur(20px);
+    transition:.35s;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+    border-color:rgba(139,112,255,.35);
+    background:rgba(255,255,255,.07);
+}
+
+.card-icon{
+    font-size:25px;
+    margin-bottom:25px;
+}
+
+.card h3{
+    margin-bottom:8px;
+}
+
+.card p{
+    color:rgba(255,255,255,.42);
+    font-size:13px;
+    line-height:1.5;
+}
+
+/* TOAST */
+
+#toast{
+    position:fixed;
+    left:50%;
+    bottom:25px;
+    transform:translate(-50%,30px);
+    opacity:0;
+    z-index:10000;
+    padding:13px 20px;
+    border-radius:14px;
+    background:rgba(25,25,30,.92);
+    border:1px solid rgba(255,255,255,.1);
+    backdrop-filter:blur(15px);
+    transition:.35s;
+    font-size:13px;
+    pointer-events:none;
+    white-space:nowrap;
+}
+
+#toast.show{
+    opacity:1;
+    transform:translate(-50%,0);
+}
+
+/* MOBILE */
+
+@media(max-width:600px){
+
+    .navbar{
+        padding:0 20px;
+    }
+
+    .brand{
+        font-size:11px;
+        letter-spacing:3px;
+    }
+
+    .auth-card{
+        padding:25px;
+    }
+
+    .cards{
+        grid-template-columns:1fr;
+    }
+
+    .welcome h2{
+        font-size:27px;
+    }
+
+    .hero h1{
+        letter-spacing:-4px;
+    }
+
+    .hero-text{
+        font-size:14px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="background">
+    <div class="glow one"></div>
+    <div class="glow two"></div>
+</div>
+
+<!-- LOADER -->
+
+<div id="loader">
+    <div class="loader-box">
+        <div class="loader-logo">ANNA RACHIM</div>
+
+        <div class="loader-line">
+            <div id="progress"></div>
+        </div>
+
+        <div class="loading-text">LOADING</div>
+    </div>
+</div>
+
+<div id="app">
+
+<!-- HOME -->
+
+<section id="home" class="page active">
+
+<nav class="navbar">
+
+<div class="brand">
+ANNA RACHIM
+</div>
+
+<button class="nav-btn" onclick="showPage('login')">
+Войти
+</button>
+
+</nav>
+
+<div class="hero">
+
+<div class="hero-content">
+
+<div class="small-title">
+WELCOME TO
+</div>
+
+<h1>
+ANNA<br>
+<span class="gradient">RACHIM</span>
+</h1>
+
+<p class="hero-text">
+Современное пространство для твоих идей,
+общения и новых возможностей.
+</p>
+
+<div class="buttons">
+
+<button class="primary"
+onclick="showPage('register')">
+Создать аккаунт →
+</button>
+
+<button class="secondary"
+onclick="showPage('login')">
+Войти
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- LOGIN -->
+
+<section id="login" class="page">
+
+<div class="auth-page">
+
+<div class="auth-container">
+
+<button class="back"
+onclick="showPage('home')">
+← Назад
+</button>
+
+<div class="auth-card">
+
+<div class="auth-icon">✦</div>
+
+<h2>С возвращением</h2>
+
+<p>
+Войди в свой аккаунт ANNA RACHIM
+</p>
+
+<form onsubmit="login(event)">
+
+<div class="input-group">
+
+<label>Username или Email</label>
+
+<input
+id="loginUser"
+autocomplete="username"
+required>
+
+</div>
+
+<div class="input-group">
+
+<label>Пароль</label>
+
+<input
+id="loginPassword"
+type="password"
+autocomplete="current-password"
+required>
+
+</div>
+
+<button class="primary full">
+Войти →
+</button>
+
+</form>
+
+<div class="switch">
+
+Нет аккаунта?
+
+<button
+class="link"
+onclick="showPage('register')">
+Создать
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- REGISTER -->
+
+<section id="register" class="page">
+
+<div class="auth-page">
+
+<div class="auth-container">
+
+<button class="back"
+onclick="showPage('home')">
+← Назад
+</button>
+
+<div class="auth-card">
+
+<div class="auth-icon">✦</div>
+
+<h2>Создать аккаунт</h2>
+
+<p>
+Создай своё пространство
+</p>
+
+<form onsubmit="register(event)">
+
+<div class="input-group">
+
+<label>Имя</label>
+
+<input
+id="regName"
+autocomplete="name"
+required>
+
+</div>
+
+<div class="input-group">
+
+<label>Username</label>
+
+<input
+id="regUsername"
+autocomplete="username"
+required>
+
+</div>
+
+<div class="input-group">
+
+<label>Email</label>
+
+<input
+id="regEmail"
+type="email"
+autocomplete="email"
+required>
+
+</div>
+
+<div class="input-group">
+
+<label>Пароль</label>
+
+<input
+id="regPassword"
+type="password"
+autocomplete="new-password"
+minlength="6"
+required>
+
+</div>
+
+<button class="primary full">
+Создать аккаунт →
+</button>
+
+</form>
+
+<div class="switch">
+
+Уже есть аккаунт?
+
+<button
+class="link"
+onclick="showPage('login')">
+Войти
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- DASHBOARD -->
+
+<section id="dashboard" class="page dashboard">
+
+<nav class="dashboard-nav">
+
+<div class="brand">
+ANNA RACHIM
+</div>
+
+<button class="logout" onclick="logout()">
+Выйти
+</button>
+
+</nav>
+
+<div class="dashboard-content">
+
+<div class="welcome">
+
+<small>YOUR SPACE</small>
+
+<h2>
+Добро пожаловать,
+<span id="userName"></span> 👋
+</h2>
+
+<p>
+Рады видеть тебя в ANNA RACHIM.
+</p>
+
+</div>
+
+<div class="cards">
+
+<div class="card">
+
+<div class="card-icon">✦</div>
+
+<h3>AI Assistant</h3>
+
+<p>
+Твой интеллектуальный помощник.
+Скоро здесь появится AI.
+</p>
+
+</div>
+
+<div class="card">
+
+<div class="card-icon">◇</div>
+
+<h3>Мои проекты</h3>
+
+<p>
+Создавай и сохраняй свои идеи
+в одном месте.
+</p>
+
+</div>
+
+<div class="card">
+
+<div class="card-icon">◎</div>
+
+<h3>Профиль</h3>
+
+<p>
+Настрой своё имя, username
+и внешний вид профиля.
+</p>
+
+</div>
+
+<div class="card">
+
+<div class="card-icon">↗</div>
+
+<h3>Активность</h3>
+
+<p>
+Здесь будет отображаться
+твоя активность.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+
+/* LOADING */
+
+let progress = 0;
+
+const progressBar =
+document.getElementById("progress");
+
+const loader =
+document.getElementById("loader");
+
+const app =
+document.getElementById("app");
+
+const loading =
+setInterval(() => {
+
+    progress += Math.random() * 9;
+
+    if(progress >= 100){
+
+        progress = 100;
+
+        clearInterval(loading);
+
+        setTimeout(() => {
+
+            loader.classList.add("hide");
+            app.classList.add("show");
+
+            checkSession();
+
+        },500);
+    }
+
+    progressBar.style.width =
+    progress + "%";
+
+},100);
+
+
+/* PAGE SYSTEM */
+
+function showPage(page){
+
+    document
+    .querySelectorAll(".page")
+    .forEach(element => {
+
+        element.classList.remove("active");
+
+    });
+
+    const target =
+    document.getElementById(page);
+
+    if(target){
+        target.classList.add("active");
+    }
+
+    window.scrollTo(0,0);
+}
+
+
+/* TOAST */
+
+function toast(message){
+
+    const element =
+    document.getElementById("toast");
+
+    element.textContent = message;
+
+    element.classList.add("show");
+
+    setTimeout(() => {
+
+        element.classList.remove("show");
+
+    },2500);
+}
+
+
+/* REGISTER */
+
+function register(event){
+
+    event.preventDefault();
+
+    const name =
+    document.getElementById("regName")
+    .value.trim();
+
+    const username =
+    document.getElementById("regUsername")
+    .value.trim();
+
+    const email =
+    document.getElementById("regEmail")
+    .value.trim();
+
+    const password =
+    document.getElementById("regPassword")
+    .value;
+
+    if(password.length < 6){
+
+        toast("Пароль должен быть минимум 6 символов");
+
+        return;
+    }
+
+    const oldUser =
+    JSON.parse(localStorage.getItem("annaRachimUser"));
+
+    if(oldUser){
+
+        toast("Аккаунт уже создан на этом устройстве");
+
+        return;
+    }
+
+    const user = {
+
+        name:name,
+        username:username,
+        email:email,
+        password:password
+
+    };
+
+    localStorage.setItem(
+        "annaRachimUser",
+        JSON.stringify(user)
+    );
+
+    localStorage.setItem(
+        "annaRachimLogged",
+        "true"
+    );
+
+    document.getElementById("regName").value="";
+    document.getElementById("regUsername").value="";
+    document.getElementById("regEmail").value="";
+    document.getElementById("regPassword").value="";
+
+    updateDashboard();
+
+    showPage("dashboard");
+
+    toast("Аккаунт успешно создан ✦");
+}
+
+
+/* LOGIN */
+
+function login(event){
+
+    event.preventDefault();
+
+    const loginValue =
+    document.getElementById("loginUser")
+    .value.trim();
+
+    const password =
+    document.getElementById("loginPassword")
+    .value;
+
+    const user =
+    JSON.parse(localStorage.getItem("annaRachimUser"));
+
+    if(!user){
+
+        toast("Сначала создай аккаунт");
+
+        setTimeout(() => {
+
+            showPage("register");
+
+        },1000);
+
+        return;
+    }
+
+    const correctLogin =
+    loginValue.toLowerCase() ===
+    user.username.toLowerCase()
+    ||
+    loginValue.toLowerCase() ===
+    user.email.toLowerCase();
+
+    if(!correctLogin){
+
+        toast("Неверный username или email");
+
+        return;
+    }
+
+    if(password !== user.password){
+
+        toast("Неверный пароль");
+
+        return;
+    }
+
+    localStorage.setItem(
+        "annaRachimLogged",
+        "true"
+    );
+
+    document.getElementById("loginUser").value="";
+    document.getElementById("loginPassword").value="";
+
+    updateDashboard();
+
+    showPage("dashboard");
+
+    toast("Добро пожаловать ✦");
+}
+
+
+/* DASHBOARD */
+
+function updateDashboard(){
+
+    const user =
+    JSON.parse(localStorage.getItem("annaRachimUser"));
+
+    if(user){
+
+        document.getElementById("userName")
+        .textContent = user.name;
+
+    }
+}
+
+
+/* SESSION */
+
+function checkSession(){
+
+    const logged =
+    localStorage.getItem("annaRachimLogged");
+
+    const user =
+    localStorage.getItem("annaRachimUser");
+
+    if(logged === "true" && user){
+
+        updateDashboard();
+
+        showPage("dashboard");
+
+    }else{
+
+        showPage("home");
+
+    }
+}
+
+
+/* LOGOUT */
+
+function logout(){
+
+    localStorage.removeItem(
+        "annaRachimLogged"
+    );
+
+    showPage("home");
+
+    toast("Ты вышел из аккаунта");
+
+}
+
+</script>
+
+</body>
+</html>
