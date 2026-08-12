@@ -11,7 +11,6 @@
             --card-border: #26262a;
             --text-main: #ffffff;
             --text-sub: #8e8e93;
-            --accent: #ffffff;
             --modal-bg: #1c1c1e;
         }
 
@@ -21,7 +20,6 @@
             --card-border: #e5e5ea;
             --text-main: #000000;
             --text-sub: #6c6c70;
-            --accent: #000000;
             --modal-bg: #ffffff;
         }
 
@@ -29,7 +27,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             transition: background-color 0.3s, color 0.3s;
         }
 
@@ -54,7 +52,6 @@
             font-weight: 700;
             letter-spacing: 1px;
             margin-bottom: 8px;
-            text-transform: uppercase;
         }
 
         .card {
@@ -66,49 +63,30 @@
             flex-direction: column;
             gap: 12px;
             cursor: pointer;
-            position: relative;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .card:active {
+            opacity: 0.8;
             transform: scale(0.98);
         }
 
-        .icon {
-            font-size: 20px;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .title {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .description {
-            font-size: 14px;
-            color: var(--text-sub);
-            line-height: 1.4;
-        }
+        .icon { font-size: 20px; }
+        .title { font-size: 18px; font-weight: 600; }
+        .description { font-size: 14px; color: var(--text-sub); line-height: 1.4; }
 
         .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.7);
             display: none;
             justify-content: center;
             align-items: flex-end;
-            z-index: 100;
+            z-index: 1000;
         }
 
-        .modal-overlay.active {
-            display: flex;
-        }
+        .modal-overlay.active { display: flex; }
 
         .modal {
             background: var(--modal-bg);
@@ -132,26 +110,9 @@
         }
 
         .close-btn {
-            background: none;
-            border: none;
+            background: none; border: none;
             color: var(--text-sub);
-            font-size: 20px;
-            cursor: pointer;
-        }
-
-        .profile-avatar-container {
-            display: flex;
-            justify-content: center;
-            margin: 8px 0;
-        }
-
-        .profile-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: var(--card-border);
-            object-fit: cover;
-            cursor: pointer;
+            font-size: 24px; cursor: pointer;
         }
 
         .input-group {
@@ -160,10 +121,7 @@
             gap: 6px;
         }
 
-        .input-group label {
-            font-size: 12px;
-            color: var(--text-sub);
-        }
+        .input-group label { font-size: 12px; color: var(--text-sub); }
 
         .input-group input {
             background: var(--card-bg);
@@ -192,7 +150,6 @@
             padding: 14px;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 8px;
         }
     </style>
 </head>
@@ -213,7 +170,7 @@
             <div class="description">Создавай и сохраняй свои идеи в одном месте.</div>
         </div>
 
-        <div class="card" id="profileCard">
+        <div class="card" onclick="openProfile()">
             <div class="icon">◎</div>
             <div class="title" id="profileTitle">Профиль</div>
             <div class="description" id="profileDesc">Настрой своё имя, username и внешний вид профиля.</div>
@@ -230,12 +187,7 @@
         <div class="modal">
             <div class="modal-header">
                 <span>Редактировать профиль</span>
-                <button class="close-btn" id="closeModal">&times;</button>
-            </div>
-
-            <div class="profile-avatar-container">
-                <img src="https://via.placeholder.com/80" id="avatarPreview" class="profile-avatar" alt="Avatar" onclick="document.getElementById('avatarInput').click()">
-                <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+                <button class="close-btn" onclick="closeProfile()">&times;</button>
             </div>
 
             <div class="input-group">
@@ -250,87 +202,63 @@
 
             <div class="theme-toggle">
                 <span>Светлая тема</span>
-                <input type="checkbox" id="themeSwitch">
+                <input type="checkbox" id="themeSwitch" onchange="toggleTheme()">
             </div>
 
-            <button class="btn-save" id="saveProfileBtn">Сохранить</button>
+            <button class="btn-save" onclick="saveProfile()">Сохранить</button>
         </div>
     </div>
 
     <script>
-        const profileCard = document.getElementById('profileCard');
-        const modalOverlay = document.getElementById('modalOverlay');
-        const closeModal = document.getElementById('closeModal');
-        const saveProfileBtn = document.getElementById('saveProfileBtn');
-        
-        const nameInput = document.getElementById('nameInput');
-        const usernameInput = document.getElementById('usernameInput');
-        const avatarInput = document.getElementById('avatarInput');
-        const avatarPreview = document.getElementById('avatarPreview');
-        const themeSwitch = document.getElementById('themeSwitch');
+        function openProfile() {
+            document.getElementById('modalOverlay').classList.add('active');
+        }
 
-        const profileTitle = document.getElementById('profileTitle');
-        const profileDesc = document.getElementById('profileDesc');
+        function closeProfile() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedName = localStorage.getItem('profileName');
-            const savedUsername = localStorage.getItem('profileUsername');
-            const savedAvatar = localStorage.getItem('profileAvatar');
-            const savedTheme = localStorage.getItem('theme');
-
-            if (savedName) {
-                profileTitle.textContent = savedName;
-                nameInput.value = savedName;
-            }
-            if (savedUsername) {
-                profileDesc.textContent = savedUsername;
-                usernameInput.value = savedUsername;
-            }
-            if (savedAvatar) {
-                avatarPreview.src = savedAvatar;
-            }
-            if (savedTheme === 'light') {
-                document.body.classList.add('light-theme');
-                themeSwitch.checked = true;
-            }
-        });
-
-        profileCard.addEventListener('click', () => modalOverlay.classList.add('active'));
-        closeModal.addEventListener('click', () => modalOverlay.classList.remove('active'));
-
-        avatarInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    avatarPreview.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        themeSwitch.addEventListener('change', () => {
-            if (themeSwitch.checked) {
+        function toggleTheme() {
+            const isLight = document.getElementById('themeSwitch').checked;
+            if (isLight) {
                 document.body.classList.add('light-theme');
             } else {
                 document.body.classList.remove('light-theme');
             }
-        });
+        }
 
-        saveProfileBtn.addEventListener('click', () => {
-            const name = nameInput.value.trim() || 'Профиль';
-            const username = usernameInput.value.trim() || 'Настрой своё имя и username.';
+        function saveProfile() {
+            const name = document.getElementById('nameInput').value.trim() || 'Профиль';
+            const username = document.getElementById('usernameInput').value.trim() || 'Настрой своё имя и username.';
 
-            profileTitle.textContent = name;
-            profileDesc.textContent = username;
+            document.getElementById('profileTitle').textContent = name;
+            document.getElementById('profileDesc').textContent = username;
 
             localStorage.setItem('profileName', name);
             localStorage.setItem('profileUsername', username);
-            localStorage.setItem('profileAvatar', avatarPreview.src);
-            localStorage.setItem('theme', themeSwitch.checked ? 'light' : 'dark');
+            localStorage.setItem('theme', document.getElementById('themeSwitch').checked ? 'light' : 'dark');
 
-            modalOverlay.classList.remove('active');
-        });
+            closeProfile();
+        }
+
+        window.onload = function() {
+            const savedName = localStorage.getItem('profileName');
+            const savedUsername = localStorage.getItem('profileUsername');
+            const savedTheme = localStorage.getItem('theme');
+
+            if (savedName) {
+                document.getElementById('profileTitle').textContent = savedName;
+                document.getElementById('nameInput').value = savedName;
+            }
+            if (savedUsername) {
+                document.getElementById('profileDesc').textContent = savedUsername;
+                document.getElementById('usernameInput').value = savedUsername;
+            }
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-theme');
+                document.getElementById('themeSwitch').checked = true;
+            }
+        };
     </script>
 </body>
 </html>
