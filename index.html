@@ -5,86 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ANNA RACHIM</title>
     <style>
-        :root {
-            --bg-color: #0d0d0d;
-            --card-bg: #161618;
-            --card-border: #26262a;
-            --text-main: #ffffff;
-            --text-sub: #8e8e93;
-            --modal-bg: #1c1c1e;
-        }
-        body.light-theme {
-            --bg-color: #f2f2f7;
-            --card-bg: #ffffff;
-            --card-border: #e5e5ea;
-            --text-main: #000000;
-            --text-sub: #6c6c70;
-            --modal-bg: #ffffff;
-        }
+        :root { --bg-color: #0d0d0d; --card-bg: #161618; --card-border: #26262a; --text-main: #ffffff; --text-sub: #8e8e93; --modal-bg: #1c1c1e; }
+        body.light-theme { --bg-color: #f2f2f7; --card-bg: #ffffff; --card-border: #e5e5ea; --text-main: #000000; --text-sub: #6c6c70; --modal-bg: #ffffff; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg-color); color: var(--text-main); padding: 20px 16px; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 12px; }
-        .header { font-size: 16px; font-weight: 700; margin-bottom: 4px; letter-spacing: 0.5px; }
-        .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 6px; cursor: pointer; transition: transform 0.2s, background 0.2s; }
-        .card:active { transform: scale(0.98); background: #1c1c1e; }
+        .header { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+        .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 6px; cursor: pointer; transition: transform 0.2s; }
+        .card:active { transform: scale(0.97); }
         .icon { font-size: 16px; }
         .title { font-size: 15px; font-weight: 600; }
-        .description { font-size: 12px; color: var(--text-sub); line-height: 1.3; }
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: flex-end; opacity: 0; visibility: hidden; transition: 0.3s; z-index: 1000; }
+        .description { font-size: 12px; color: var(--text-sub); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: flex-end; opacity: 0; visibility: hidden; transition: 0.3s; z-index: 1000; }
         .modal-overlay.active { opacity: 1; visibility: visible; }
         .modal { background: var(--modal-bg); border-radius: 20px 20px 0 0; padding: 20px; width: 100%; max-width: 400px; transform: translateY(100%); transition: 0.3s; }
         .modal-overlay.active .modal { transform: translateY(0); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: 600; margin-bottom: 16px; }
         .close-btn { background: none; border: none; color: var(--text-sub); font-size: 20px; cursor: pointer; }
-        .input-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
-        .input-group label { font-size: 11px; color: var(--text-sub); }
-        .input-group input { background: #26262a; border: none; border-radius: 10px; padding: 10px; color: var(--text-main); font-size: 13px; outline: none; }
-        .theme-toggle { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-top: 1px solid var(--card-border); font-size: 13px; }
-        .btn-save { background: var(--text-main); color: var(--bg-color); border: none; border-radius: 10px; padding: 12px; width: 100%; font-weight: 600; cursor: pointer; font-size: 13px; }
+        .input-group { margin-bottom: 12px; }
+        .input-group label { font-size: 11px; color: var(--text-sub); display: block; margin-bottom: 4px; }
+        .input-group input { width: 100%; background: #26262a; border: none; border-radius: 10px; padding: 10px; color: var(--text-main); font-size: 13px; outline: none; }
+        .btn-save { background: var(--text-main); color: var(--bg-color); border: none; border-radius: 10px; padding: 12px; width: 100%; font-weight: 600; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">ANNA RACHIM</div>
-        <div class="card"><div class="icon">✦</div><div class="title">AI Assistant</div><div class="description">Твой интеллектуальный помощник.</div></div>
-        <div class="card"><div class="icon">◇</div><div class="title">Мои проекты</div><div class="description">Твои идеи в одном месте.</div></div>
-        <div class="card" onclick="openProfile()"><div class="icon">◎</div><div class="title" id="profileTitle">Профиль</div><div class="description" id="profileDesc">Настрой имя и тему.</div></div>
-        <div class="card"><div class="icon">↗</div><div class="title">Активность</div><div class="description">Статистика действий.</div></div>
+        <div class="card">✦<div class="title">AI Assistant</div></div>
+        <div class="card">◇<div class="title">Мои проекты</div></div>
+        <div class="card" id="profileCard">◎<div class="title" id="profileTitle">Профиль</div><div class="description" id="profileDesc">Настрой профиль</div></div>
+        <div class="card">↗<div class="title">Активность</div></div>
     </div>
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
-            <div class="modal-header"><span>Настройки профиля</span><button class="close-btn" onclick="closeProfile()">&times;</button></div>
-            <div class="input-group"><label>Имя</label><input type="text" id="nameInput" placeholder="Имя"></div>
-            <div class="input-group"><label>Username</label><input type="text" id="usernameInput" placeholder="@username"></div>
-            <div class="theme-toggle"><span>Светлая тема</span><input type="checkbox" id="themeSwitch" onchange="toggleTheme()"></div>
-            <button class="btn-save" onclick="saveProfile()">Сохранить</button>
+            <div class="modal-header"><span>Профиль</span><button class="close-btn" id="closeModal">&times;</button></div>
+            <div class="input-group"><label>Имя</label><input type="text" id="nameInput"></div>
+            <div class="input-group"><label>Username</label><input type="text" id="usernameInput"></div>
+            <button class="btn-save" id="saveBtn">Сохранить</button>
         </div>
     </div>
     <script>
-        function openProfile() { document.getElementById('modalOverlay').classList.add('active'); }
-        function closeProfile() { document.getElementById('modalOverlay').classList.remove('active'); }
-        function toggleTheme() {
-            if (document.getElementById('themeSwitch').checked) document.body.classList.add('light-theme');
-            else document.body.classList.remove('light-theme');
-        }
-        function saveProfile() {
-            const name = document.getElementById('nameInput').value.trim() || 'Профиль';
-            const username = document.getElementById('usernameInput').value.trim() || 'Настрой имя.';
-            document.getElementById('profileTitle').textContent = name;
-            document.getElementById('profileDesc').textContent = username;
-            localStorage.setItem('profileName', name);
-            localStorage.setItem('profileUsername', username);
-            localStorage.setItem('theme', document.getElementById('themeSwitch').checked ? 'light' : 'dark');
-            closeProfile();
-        }
-        window.onload = function() {
-            const savedName = localStorage.getItem('profileName');
-            const savedUsername = localStorage.getItem('profileUsername');
-            const savedTheme = localStorage.getItem('theme');
-            if (savedName) { document.getElementById('profileTitle').textContent = savedName; document.getElementById('nameInput').value = savedName; }
-            if (savedUsername) { document.getElementById('profileDesc').textContent = savedUsername; document.getElementById('usernameInput').value = savedUsername; }
-            if (savedTheme === 'light') { document.body.classList.add('light-theme'); document.getElementById('themeSwitch').checked = true; }
-        };
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('modalOverlay');
+            document.getElementById('profileCard').addEventListener('click', () => modal.classList.add('active'));
+            document.getElementById('closeModal').addEventListener('click', () => modal.classList.remove('active'));
+            
+            document.getElementById('saveBtn').addEventListener('click', () => {
+                const name = document.getElementById('nameInput').value;
+                const user = document.getElementById('usernameInput').value;
+                if(name) { document.getElementById('profileTitle').innerText = name; localStorage.setItem('n', name); }
+                if(user) { document.getElementById('profileDesc').innerText = user; localStorage.setItem('u', user); }
+                modal.classList.remove('active');
+            });
+
+            const savedN = localStorage.getItem('n');
+            const savedU = localStorage.getItem('u');
+            if(savedN) { document.getElementById('profileTitle').innerText = savedN; document.getElementById('nameInput').value = savedN; }
+            if(savedU) { document.getElementById('profileDesc').innerText = savedU; document.getElementById('usernameInput').value = savedU; }
+        });
     </script>
 </body>
 </html>
