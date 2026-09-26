@@ -1,0 +1,188 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Зал «Десятка»</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One&family=Golos+Text:wght@400;500;600&display=swap">
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #151a2e;
+    --bg-2: #1c2240;
+    --panel: #232a4c;
+    --line: #ffffff1c;
+    --ink: #f3efe4;
+    --muted: #9ba4c9;
+    --gold: #ffcc48;
+    --display: "Russo One", "Arial Black", system-ui, sans-serif;
+    --body: "Golos Text", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  [hidden] { display: none !important; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    background-image: radial-gradient(circle at 1px 1px, #ffffff0d 1px, transparent 0);
+    background-size: 22px 22px;
+    color: var(--ink);
+    font: 15px/1.5 var(--body);
+    -webkit-tap-highlight-color: transparent;
+  }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+  /* ---------- hub ---------- */
+  .hub { max-width: 1120px; margin: 0 auto; padding: 28px 16px 48px; display: grid; gap: 26px; }
+  .masthead { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; }
+  .brand { display: grid; gap: 6px; }
+  .brand h1 {
+    margin: 0; font-family: var(--display); font-weight: 400;
+    font-size: clamp(40px, 9vw, 76px); line-height: .95; letter-spacing: .01em;
+    text-wrap: balance;
+  }
+  .brand h1 .ten {
+    color: var(--bg); background: var(--gold);
+    padding: 0 .14em; border-radius: .12em; display: inline-block; transform: rotate(-3deg);
+  }
+  .brand p { margin: 0; color: var(--muted); max-width: 52ch; }
+  .coins {
+    font-family: var(--display); font-size: 13px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted); display: grid; justify-items: end; gap: 2px;
+  }
+  .coins b { font-weight: 400; font-size: 26px; color: var(--gold); font-variant-numeric: tabular-nums; }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    border: 1px solid var(--line); background: transparent; border-radius: 999px;
+    padding: 7px 14px; cursor: pointer; font-weight: 500; color: var(--muted);
+  }
+  .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; }
+  .card {
+    display: grid; grid-template-rows: auto 1fr; text-align: left; padding: 0; cursor: pointer;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+    transition: transform .15s ease, border-color .15s ease;
+  }
+  .card:hover { transform: translateY(-3px); border-color: #ffffff40; }
+  .thumb { position: relative; aspect-ratio: 16 / 10; max-width: 100%; overflow: hidden; }
+  .thumb canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+  .num {
+    position: absolute; left: 10px; top: 8px; font-family: var(--display); font-size: 13px;
+    background: #0009; padding: 2px 8px; border-radius: 6px;
+  }
+  .info { display: grid; gap: 4px; padding: 12px 14px 14px; align-content: start; }
+  .genre { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .info h2 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 21px; line-height: 1.15; }
+  .info p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.4; }
+  .foot { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 13px; }
+  .foot .best { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .foot .play { font-family: var(--display); color: var(--gold); letter-spacing: .04em; }
+  .note { color: var(--muted); font-size: 13px; margin: 0; }
+
+  /* ---------- game view ---------- */
+  .game {
+    position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column;
+    padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px);
+  }
+  .bar {
+    display: flex; align-items: center; gap: 10px; padding: 10px 16px;
+    border-bottom: 1px solid var(--line); background: var(--bg-2);
+  }
+  .bar .title { font-family: var(--display); font-size: 18px; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .btn {
+    border: 1px solid var(--line); background: var(--panel); border-radius: 10px;
+    padding: 7px 12px; cursor: pointer; font-weight: 600; font-size: 14px; white-space: nowrap;
+  }
+  .stat { display: grid; justify-items: end; line-height: 1.1; }
+  .stat span { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .stat b { font-family: var(--display); font-weight: 400; font-size: 18px; font-variant-numeric: tabular-nums; }
+  .stat.gold b { color: var(--gold); }
+  .hint { padding: 6px 16px; font-size: 13px; color: var(--muted); text-align: center; }
+  .stage { flex: 1; min-height: 0; position: relative; display: grid; place-items: center; padding: 10px 16px; }
+  .stage canvas {
+    display: block; border-radius: 8px; touch-action: none; image-rendering: pixelated;
+    box-shadow: 0 0 0 1px var(--line), 0 20px 50px #0007;
+  }
+  .overlay {
+    position: absolute; inset: 0; display: grid; place-items: center; padding: 16px; cursor: pointer;
+    background: #0b0e1c99;
+  }
+  .panel {
+    width: min(340px, 100%); background: var(--bg-2); border: 1px solid var(--line); border-radius: 16px;
+    padding: 20px 20px 18px; text-align: center; display: grid; gap: 10px;
+  }
+  .panel h3 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 26px; line-height: 1.1; text-wrap: balance; }
+  .panel p { margin: 0; color: var(--muted); }
+  .panel .big { font-family: var(--display); font-size: 40px; color: var(--gold); line-height: 1; }
+  .panel .go {
+    justify-self: center; background: var(--gold); color: #1b1606; border: 0; border-radius: 999px;
+    padding: 10px 22px; font-weight: 600; cursor: pointer;
+  }
+  .pad {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    padding: 6px 16px 14px; user-select: none; -webkit-user-select: none;
+  }
+  .dpad { display: grid; grid-template-columns: repeat(3, 58px); grid-template-rows: repeat(3, 50px); gap: 4px; }
+  .dpad.lr { grid-template-rows: 58px; grid-template-columns: repeat(2, 72px); }
+  .actions { display: flex; gap: 10px; }
+  .key {
+    border: 1px solid var(--line); background: var(--panel); border-radius: 12px; touch-action: none;
+    font-family: var(--display); font-size: 20px; display: grid; place-items: center; min-height: 50px;
+  }
+  .key.act { width: 84px; height: 72px; border-radius: 50%; font-family: var(--body); font-weight: 600; font-size: 14px; background: #ffcc4826; border-color: #ffcc4866; }
+  .key.down { background: var(--ink); color: var(--bg); }
+  @media (max-width: 520px) {
+    .bar .btn.opt { display: none; }
+    .hint { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .card { transition: none; } }
+</style>
+
+<main class="hub" id="hub">
+  <header class="masthead">
+    <div class="brand">
+      <h1>Зал <span class="ten">10</span> игр</h1>
+      <p>Платформер, кубический мир, две стрелялки и любимая классика. Всё работает прямо в браузере: на компьютере с клавиатурой и мышкой, на телефоне пальцем.</p>
+    </div>
+    <div class="coins">Рекордов набрано<b id="total">0</b></div>
+  </header>
+  <nav class="filters" id="filters" aria-label="Жанры"></nav>
+  <section class="grid" id="grid"></section>
+  <p class="note">Рекорды хранятся в этом браузере. Пауза в игре: P или Esc.</p>
+</main>
+
+<section class="game" id="game" hidden>
+  <div class="bar">
+    <button class="btn" id="back" type="button">← Игры</button>
+    <div class="title" id="gTitle"></div>
+    <div class="stat gold"><span>Счёт</span><b id="gScore">0</b></div>
+    <div class="stat"><span>Рекорд</span><b id="gBest">0</b></div>
+    <button class="btn opt" id="pause" type="button">Пауза</button>
+    <button class="btn opt" id="mute" type="button">Звук</button>
+  </div>
+  <div class="hint" id="gHint"></div>
+  <div class="stage" id="stage">
+    <canvas id="screen"></canvas>
+    <div class="overlay" id="overlay">
+      <div class="panel">
+        <h3 id="oTitle"></h3>
+        <div class="big" id="oBig" hidden></div>
+        <p id="oText"></p>
+        <button class="go" id="oGo" type="button">Играть</button>
+      </div>
+    </div>
+  </div>
+  <div class="pad" id="pad" hidden></div>
+</section>
+
+<script src="engine.js"></script>
+<script src="games/jumper.js"></script>
+<script src="games/blocks.js"></script>
+<script src="games/shooter.js"></script>
+<script src="games/zombies.js"></script>
+<script src="games/snake.js"></script>
+<script src="games/bricks.js"></script>
+<script src="games/flappy.js"></script>
+<script src="games/breakout.js"></script>
+<script src="games/g2048.js"></script>
+<script src="games/tower.js"></script>
+<script>ARCADE.boot();</script>
