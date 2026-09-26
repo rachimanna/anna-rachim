@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Домашний кинотеатр — мини-проектор</title>
+    <meta name="description" content="Мини-проектор для фильмов: экран до 120 дюймов на любой стене, встроенные приложения, Wi‑Fi и Bluetooth.">
+    <style>
+        :root {
+            --bg: #0d0d0d; --card: #161618; --border: #26262a; --text: #ffffff;
+            --muted: #a1a1aa; --accent: #ffb547; --accent-2: #ff6b3d;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.5; }
+        .wrap { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+        section { padding: 56px 0; }
+        h1 { font-size: clamp(32px, 6vw, 56px); line-height: 1.05; margin: 0 0 16px; }
+        h2 { font-size: clamp(24px, 4vw, 36px); margin: 0 0 24px; }
+        p { color: var(--muted); margin: 0; }
+        .btn { display: inline-block; padding: 16px 28px; border: none; border-radius: 14px; font-size: 17px; font-weight: 700; cursor: pointer; text-decoration: none; color: #111; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+        .btn:hover { filter: brightness(1.08); }
+        .badge { display: inline-block; padding: 6px 12px; border-radius: 999px; background: #2a1d0a; color: var(--accent); font-size: 13px; font-weight: 600; margin-bottom: 16px; }
+
+        /* Hero */
+        .hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 32px; align-items: center; padding-top: 48px; }
+        .hero p { font-size: 18px; margin-bottom: 24px; }
+        .price { display: flex; align-items: baseline; gap: 12px; margin-bottom: 20px; }
+        .price .now { font-size: 36px; font-weight: 800; }
+        .price .old { color: var(--muted); text-decoration: line-through; }
+        .hero-art { position: relative; aspect-ratio: 1; border-radius: 24px; background: radial-gradient(circle at 30% 70%, #2b1a06, #0d0d0d 70%); overflow: hidden; }
+        .hero-art svg { width: 100%; height: 100%; }
+
+        /* Cards */
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
+        .card .ico { font-size: 28px; margin-bottom: 8px; }
+        .card h3 { margin: 0 0 6px; font-size: 18px; }
+
+        /* Specs */
+        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 16px; overflow: hidden; }
+        td { padding: 14px 20px; border-bottom: 1px solid var(--border); }
+        td:first-child { color: var(--muted); width: 45%; }
+        tr:last-child td { border-bottom: none; }
+        .note { font-size: 13px; margin-top: 10px; }
+
+        /* Steps */
+        .steps { counter-reset: s; }
+        .steps .card { position: relative; padding-left: 64px; }
+        .steps .card::before { counter-increment: s; content: counter(s); position: absolute; left: 20px; top: 20px; width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: #111; font-weight: 800; display: grid; place-items: center; }
+
+        /* FAQ */
+        details { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; margin-bottom: 10px; }
+        summary { cursor: pointer; font-weight: 600; }
+        details p { margin-top: 10px; }
+
+        /* Order */
+        .order { background: linear-gradient(135deg, #1f1406, #161618); border: 1px solid #3a2a12; border-radius: 24px; padding: 32px; text-align: center; }
+        .bundles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 24px 0; text-align: left; }
+        .bundle { background: var(--card); border: 2px solid var(--border); border-radius: 16px; padding: 16px; cursor: pointer; }
+        .bundle.active { border-color: var(--accent); }
+        .bundle b { display: block; font-size: 18px; }
+        form { max-width: 420px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+        input { width: 100%; padding: 14px; background: #26262a; border: 1px solid transparent; border-radius: 12px; color: var(--text); font-size: 16px; }
+        input:focus { outline: none; border-color: var(--accent); }
+        .ok { display: none; color: var(--accent); font-weight: 600; margin-top: 12px; }
+
+        /* Sticky mobile CTA */
+        .sticky { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px 16px; background: rgba(13,13,13,.92); border-top: 1px solid var(--border); display: none; }
+        .sticky .btn { width: 100%; text-align: center; }
+
+        footer { padding: 32px 0 96px; color: var(--muted); font-size: 13px; text-align: center; }
+
+        @media (max-width: 760px) {
+            .hero { grid-template-columns: 1fr; }
+            .hero-art { order: -1; }
+            .grid { grid-template-columns: 1fr; }
+            .bundles { grid-template-columns: 1fr; }
+            .sticky { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrap">
+    <!-- HERO -->
+    <section class="hero">
+        <div>
+            <span class="badge">🎬 Кинотеатр у тебя дома</span>
+            <h1>Экран до 120″ на любой стене</h1>
+            <p>Мини-проектор размером с ладонь. Включил, направил на стену и смотришь фильмы, сериалы и YouTube прямо из кровати. Без проводов и без ТВ-приставок.</p>
+            <div class="price">
+                <!-- TODO: поставь свои цены -->
+                <span class="now">5 990 ₽</span>
+                <span class="old">9 990 ₽</span>
+            </div>
+            <a href="#order" class="btn">Заказать со скидкой</a>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+            <!-- Заглушка: замени на реальное фото/гифку товара -->
+            <svg viewBox="0 0 400 400">
+                <defs>
+                    <linearGradient id="beam" x1="0" y1="1" x2="1" y2="0">
+                        <stop offset="0" stop-color="#ffb547" stop-opacity=".55"/>
+                        <stop offset="1" stop-color="#ffb547" stop-opacity="0"/>
+                    </linearGradient>
+                </defs>
+                <polygon points="120,280 380,40 380,230" fill="url(#beam)"/>
+                <rect x="290" y="40" width="90" height="190" rx="6" fill="#1d1d20" stroke="#ffb547" stroke-opacity=".4"/>
+                <polygon points="322,110 322,160 352,135" fill="#ffb547"/>
+                <rect x="40" y="250" width="120" height="90" rx="22" fill="#e9e9ee"/>
+                <circle cx="130" cy="285" r="22" fill="#26262a"/>
+                <circle cx="130" cy="285" r="12" fill="#3b82f6" opacity=".7"/>
+                <rect x="55" y="320" width="40" height="6" rx="3" fill="#bdbdc4"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- BENEFITS -->
+    <section>
+        <h2>Почему его берут</h2>
+        <div class="grid">
+            <div class="card"><div class="ico">📺</div><h3>Большой экран</h3><p>Изображение до 120 дюймов: больше любого телевизора в квартире.</p></div>
+            <div class="card"><div class="ico">📶</div><h3>Всё уже внутри</h3><p>Wi‑Fi и встроенные приложения: YouTube, онлайн-кинотеатры, браузер.</p></div>
+            <div class="card"><div class="ico">🔊</div><h3>Bluetooth-звук</h3><p>Подключи колонку или наушники, чтобы звук был как в кино.</p></div>
+            <div class="card"><div class="ico">🛏️</div><h3>Проекция на потолок</h3><p>Поворотный корпус: можно смотреть лёжа, направив картинку вверх.</p></div>
+            <div class="card"><div class="ico">🎮</div><h3>Игры и телефон</h3><p>Выводи экран смартфона или подключай консоль по HDMI.</p></div>
+            <div class="card"><div class="ico">🎁</div><h3>Идеальный подарок</h3><p>На день рождения, Новый год или для вечеров вдвоём.</p></div>
+        </div>
+    </section>
+
+    <!-- SPECS -->
+    <section>
+        <h2>Характеристики</h2>
+        <!-- TODO: заполни ТОЧНЫМИ данными от поставщика. Не пиши «4K», если родное разрешение 720p: это главная причина возвратов и чарджбэков. -->
+        <table>
+            <tr><td>Родное разрешение</td><td>1280×720 (поддержка входа 1080p/4K)</td></tr>
+            <tr><td>Размер изображения</td><td>40–120″</td></tr>
+            <tr><td>Система</td><td>Android TV</td></tr>
+            <tr><td>Подключение</td><td>Wi‑Fi, Bluetooth, HDMI, USB</td></tr>
+            <tr><td>Коррекция трапеции</td><td>Автоматическая</td></tr>
+            <tr><td>Комплект</td><td>Проектор, пульт, кабель питания, инструкция</td></tr>
+        </table>
+        <p class="note">Лучше всего картинка смотрится в затемнённой комнате или вечером.</p>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="steps">
+        <h2>Запуск за 1 минуту</h2>
+        <div class="grid">
+            <div class="card"><h3>Поставь напротив стены</h3><p>Подойдёт светлая стена, простыня или экран.</p></div>
+            <div class="card"><h3>Подключи Wi‑Fi</h3><p>Пультом выбери свою сеть.</p></div>
+            <div class="card"><h3>Включай фильм</h3><p>Открой приложение и наслаждайся.</p></div>
+        </div>
+    </section>
+
+    <!-- REVIEWS -->
+    <section>
+        <h2>Отзывы покупателей</h2>
+        <!-- TODO: вставь только настоящие отзывы и фото от реальных покупателей. Выдуманные отзывы нарушают закон о защите прав потребителей и правила рекламных площадок. -->
+        <div class="grid">
+            <div class="card"><p>Здесь будет отзыв реального покупателя с фото.</p></div>
+            <div class="card"><p>Здесь будет отзыв реального покупателя с фото.</p></div>
+            <div class="card"><p>Здесь будет отзыв реального покупателя с фото.</p></div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section>
+        <h2>Вопросы</h2>
+        <details><summary>Будет ли видно днём?</summary><p>Лучше всего смотреть в затемнённой комнате. Днём задёрни шторы.</p></details>
+        <details><summary>Нужен ли телевизор или приставка?</summary><p>Нет. Приложения уже встроены, нужен только Wi‑Fi.</p></details>
+        <details><summary>Сколько идёт доставка?</summary><p><!-- TODO -->7–14 дней. После отправки пришлём трек-номер.</p></details>
+        <details><summary>Есть ли гарантия?</summary><p><!-- TODO -->Гарантия 12 месяцев и возврат в течение 14 дней.</p></details>
+        <details><summary>Как оплатить?</summary><p><!-- TODO -->Оплата при получении или картой на сайте.</p></details>
+    </section>
+
+    <!-- ORDER -->
+    <section id="order">
+        <div class="order">
+            <h2>Оформить заказ</h2>
+            <p>Выбери комплект и оставь контакты: мы перезвоним и подтвердим заказ.</p>
+            <div class="bundles">
+                <div class="bundle active" data-bundle="Проектор"><b>Проектор</b><span>5 990 ₽</span></div>
+                <div class="bundle" data-bundle="Проектор + экран + подставка"><b>Проектор + экран + подставка</b><span>6 990 ₽ · выгода 1 500 ₽</span></div>
+            </div>
+            <form id="orderForm">
+                <input type="text" id="name" placeholder="Имя" required>
+                <input type="tel" id="phone" placeholder="Телефон" required>
+                <input type="text" id="city" placeholder="Город" required>
+                <button class="btn" type="submit">Заказать</button>
+            </form>
+            <div class="ok" id="ok">Спасибо! Мы скоро свяжемся с вами для подтверждения заказа.</div>
+        </div>
+    </section>
+</div>
+
+<footer>
+    <!-- TODO: реквизиты продавца (ИП/самозанятый), оферта, политика конфиденциальности -->
+    © Домашний кинотеатр · Оферта · Политика конфиденциальности
+</footer>
+
+<div class="sticky"><a href="#order" class="btn">Заказать за 5 990 ₽</a></div>
+
+<script>
+    let bundle = 'Проектор';
+    document.querySelectorAll('.bundle').forEach(el => {
+        el.addEventListener('click', () => {
+            document.querySelectorAll('.bundle').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+            bundle = el.dataset.bundle;
+        });
+    });
+
+    document.getElementById('orderForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const order = {
+            bundle,
+            name: document.getElementById('name').value,
+            phone: document.getElementById('phone').value,
+            city: document.getElementById('city').value
+        };
+        // TODO: отправлять заказ в Telegram-бот / Google Sheets / CRM
+        console.log('Новый заказ:', order);
+        e.target.style.display = 'none';
+        document.getElementById('ok').style.display = 'block';
+    });
+</script>
+</body>
+</html>
