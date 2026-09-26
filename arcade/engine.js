@@ -164,6 +164,7 @@
     best = bestOf(g.id);
     gBest.textContent = best;
     buildPad();
+    $('rotate').hidden = !(coarse && g.w > g.h);
     fit();
     newGame();
     state = 'ready';
@@ -246,6 +247,10 @@
   window.addEventListener('blur', () => { clearInput(); pause(); });
   document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
   window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', () => setTimeout(fit, 250));
+  // keep the phone from scrolling or zooming while a game is open
+  gameEl.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+  document.addEventListener('dblclick', e => { if (def) e.preventDefault(); });
 
   // pointer on the game canvas
   let swipe = null;

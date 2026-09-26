@@ -1,6 +1,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Зал «Десятка»</title>
+<title>Play Games</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One&family=Golos+Text:wght@400;500;600&display=swap">
@@ -27,7 +27,10 @@
     color: var(--ink);
     font: 15px/1.5 var(--body);
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    -webkit-text-size-adjust: 100%;
   }
+  .eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
   button { font: inherit; color: inherit; }
   :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
@@ -81,8 +84,11 @@
   /* ---------- game view ---------- */
   .game {
     position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column;
-    padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px);
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+    user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+    overscroll-behavior: none;
   }
+  .rotate { text-align: center; color: var(--muted); font-size: 13px; padding: 0 16px 6px; }
   .bar {
     display: flex; align-items: center; gap: 10px; padding: 10px 16px;
     border-bottom: 1px solid var(--line); background: var(--bg-2);
@@ -121,6 +127,7 @@
     display: flex; justify-content: space-between; align-items: center; gap: 12px;
     padding: 6px 16px 14px; user-select: none; -webkit-user-select: none;
   }
+  .dpad:empty { display: none; }
   .dpad { display: grid; grid-template-columns: repeat(3, 58px); grid-template-rows: repeat(3, 50px); gap: 4px; }
   .dpad.lr { grid-template-rows: 58px; grid-template-columns: repeat(2, 72px); }
   .actions { display: flex; gap: 10px; }
@@ -130,9 +137,34 @@
   }
   .key.act { width: 84px; height: 72px; border-radius: 50%; font-family: var(--body); font-weight: 600; font-size: 14px; background: #ffcc4826; border-color: #ffcc4866; }
   .key.down { background: var(--ink); color: var(--bg); }
-  @media (max-width: 520px) {
+  @media (max-width: 560px) {
+    .hub { padding-top: 20px; gap: 18px; }
+    .brand h1 { font-size: 48px; }
+    .brand p { font-size: 14px; }
+    .coins { justify-items: start; }
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .info { padding: 10px 11px 12px; }
+    .info h2 { font-size: 17px; }
+    .info p { display: none; }
+    .genre { font-size: 10px; letter-spacing: .08em; }
+    .foot { flex-direction: column; align-items: flex-start; gap: 2px; margin-top: 4px; }
+    .bar { gap: 8px; padding: 8px 12px; }
+    .bar .title { font-size: 16px; }
+    .btn { padding: 6px 10px; }
     .bar .btn.opt { display: none; }
     .hint { display: none; }
+    .stage { padding: 8px; }
+  }
+  /* phone held sideways: controls float over the sides of the game */
+  @media (orientation: landscape) and (max-height: 520px) {
+    .hint, .rotate { display: none !important; }
+    .bar { padding: 4px 12px; }
+    .bar .btn.opt { display: none; }
+    .stat b { font-size: 16px; }
+    .stage { padding: 4px 8px; }
+    .pad { position: absolute; left: 0; right: 0; bottom: 0; padding: 0 12px 10px; pointer-events: none; }
+    .pad .key { pointer-events: auto; background: #232a4ccc; }
+    .pad .key.act { background: #ffcc4833; }
   }
   @media (prefers-reduced-motion: reduce) { .card { transition: none; } }
 </style>
@@ -140,8 +172,9 @@
 <main class="hub" id="hub">
   <header class="masthead">
     <div class="brand">
-      <h1>Зал <span class="ten">10</span> игр</h1>
-      <p>Платформер, кубический мир, две стрелялки и любимая классика. Всё работает прямо в браузере: на компьютере с клавиатурой и мышкой, на телефоне пальцем.</p>
+      <span class="eyebrow">10 игр в одном месте</span>
+      <h1>Play <span class="ten">Games</span></h1>
+      <p>Платформер, кубический мир, две стрелялки и любимая классика. На компьютере играй клавиатурой и мышкой, на телефоне пальцем.</p>
     </div>
     <div class="coins">Рекордов набрано<b id="total">0</b></div>
   </header>
@@ -156,7 +189,7 @@
     <div class="title" id="gTitle"></div>
     <div class="stat gold"><span>Счёт</span><b id="gScore">0</b></div>
     <div class="stat"><span>Рекорд</span><b id="gBest">0</b></div>
-    <button class="btn opt" id="pause" type="button">Пауза</button>
+    <button class="btn" id="pause" type="button" aria-label="Пауза">Пауза</button>
     <button class="btn opt" id="mute" type="button">Звук</button>
   </div>
   <div class="hint" id="gHint"></div>
@@ -171,6 +204,7 @@
       </div>
     </div>
   </div>
+  <div class="rotate" id="rotate" hidden>Поверни телефон боком, так экран будет больше</div>
   <div class="pad" id="pad" hidden></div>
 </section>
 
