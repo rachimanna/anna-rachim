@@ -1,0 +1,387 @@
+<meta charset="utf-8">
+<title>Ночная башня</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;800&family=Golos+Text:wght@400;600&display=swap">
+<style>
+  :root {
+    color-scheme: dark;
+    --night: #120f2a;
+    --night-2: #1d1842;
+    --ink: #f4ecdc;
+    --muted: #a59fc9;
+    --amber: #ffb65c;
+    --display: "Unbounded", "Arial Black", system-ui, sans-serif;
+    --body: "Golos Text", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  [hidden] { display: none !important; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--night);
+    color: var(--ink);
+    font-family: var(--body);
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .stage { position: relative; height: 100%; }
+  canvas { display: block; width: 100%; height: 100%; cursor: pointer; }
+  .hud {
+    position: absolute; inset: 0 0 auto 0;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 18px 16px; pointer-events: none;
+  }
+  .score {
+    font-family: var(--display); font-weight: 800;
+    font-size: clamp(44px, 12vw, 72px); line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .meta { display: grid; gap: 6px; justify-items: end; }
+  .label {
+    font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  }
+  .best { font-family: var(--display); font-weight: 500; font-size: 18px; font-variant-numeric: tabular-nums; }
+  .mute {
+    pointer-events: auto; margin-top: 6px;
+    background: transparent; color: var(--muted);
+    border: 1px solid #ffffff2a; border-radius: 999px;
+    font: 600 12px var(--body); padding: 6px 12px; cursor: pointer;
+  }
+  .mute:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  .combo {
+    position: absolute; left: 0; right: 0; top: 18%;
+    text-align: center; font-family: var(--display); font-weight: 800;
+    font-size: 22px; color: var(--amber); letter-spacing: .04em;
+    opacity: 0; transform: translateY(8px); transition: opacity .2s, transform .2s;
+    pointer-events: none;
+  }
+  .combo.show { opacity: 1; transform: none; }
+  .card {
+    position: absolute; left: 50%; top: 20%;
+    transform: translateX(-50%);
+    width: min(360px, calc(100% - 32px));
+    text-align: center; display: grid; gap: 10px;
+    padding: 20px 18px;
+    background: #1d1842d9; border: 1px solid #ffffff1c; border-radius: 14px;
+    backdrop-filter: blur(6px);
+    pointer-events: none;
+  }
+  .card h1 {
+    margin: 0; font-family: var(--display); font-weight: 800;
+    font-size: 26px; text-wrap: balance;
+  }
+  .card p { margin: 0; color: var(--muted); line-height: 1.45; }
+  .card .go {
+    justify-self: center; margin-top: 4px;
+    font: 600 14px var(--body); color: var(--night);
+    background: var(--amber); border-radius: 999px; padding: 9px 18px;
+  }
+  @media (prefers-reduced-motion: reduce) { .combo { transition: none; } }
+</style>
+
+<div class="stage" id="stage">
+  <canvas id="c" aria-label="Игровое поле: нажмите, чтобы уронить блок"></canvas>
+  <div class="hud">
+    <div class="score" id="score">0</div>
+    <div class="meta">
+      <span class="label">Рекорд</span>
+      <span class="best" id="best">0</span>
+      <button class="mute" id="mute" type="button">Звук: вкл</button>
+    </div>
+  </div>
+  <div class="combo" id="combo"></div>
+  <div class="card" id="card">
+    <h1 id="cardTitle">Ночная башня</h1>
+    <p id="cardText">Блок ездит туда-сюда. Нажми, чтобы уронить его ровно на башню. Всё, что свисает, отрежется. Три точных попадания подряд расширяют блок.</p>
+    <span class="go" id="cardGo">Нажми или пробел</span>
+  </div>
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  const scoreEl = document.getElementById('score');
+  const bestEl = document.getElementById('best');
+  const comboEl = document.getElementById('combo');
+  const card = document.getElementById('card');
+  const cardTitle = document.getElementById('cardTitle');
+  const cardText = document.getElementById('cardText');
+  const cardGo = document.getElementById('cardGo');
+  const muteBtn = document.getElementById('mute');
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const H = 30;            // block height, css px
+  const PERFECT = 5;       // px tolerance for a perfect drop
+  let W = 0, VH = 0, dpr = 1, baseW = 0;
+
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch { return d; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch {} }
+  };
+  let best = +store.get('tower.best', 0) || 0;
+  let muted = store.get('tower.muted', '0') === '1';
+  bestEl.textContent = best;
+  muteBtn.textContent = muted ? 'Звук: выкл' : 'Звук: вкл';
+
+  // ---------- sound ----------
+  let ac = null;
+  function tone(freq, dur = 0.12, type = 'triangle', vol = 0.12) {
+    if (muted) return;
+    try {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = type; o.frequency.value = freq;
+      g.gain.setValueAtTime(vol, ac.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + dur);
+      o.connect(g).connect(ac.destination);
+      o.start(); o.stop(ac.currentTime + dur);
+    } catch {}
+  }
+  const SCALE = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24];
+  const note = i => 330 * Math.pow(2, SCALE[Math.min(i, SCALE.length - 1)] / 12);
+
+  // ---------- state ----------
+  let stack, cur, falling, sparks, state, combo, camY, speed, stars, t0;
+
+  function hueFor(i) { return (250 + i * 9) % 360; }
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const r = canvas.getBoundingClientRect();
+    W = r.width; VH = r.height;
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(VH * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    baseW = Math.min(W * 0.55, 240);
+    stars = Array.from({ length: 90 }, () => ({
+      x: Math.random() * W, y: Math.random() * 2400, r: Math.random() * 1.4 + 0.3, p: Math.random() * 6
+    }));
+  }
+
+  function reset(demo) {
+    stack = [];
+    const x0 = (W - baseW) / 2;
+    stack.push({ x: x0, w: baseW, hue: hueFor(0) });
+    if (demo) {
+      // a small sample tower so the first frame shows what the game is
+      let w = baseW, x = x0;
+      for (let i = 1; i <= 5; i++) {
+        const shift = [8, -12, 0, 10, -6][i - 1];
+        const nx = x + shift, L = Math.max(x, nx), R = Math.min(x + w, nx + w);
+        x = L; w = R - L;
+        stack.push({ x, w, hue: hueFor(i) });
+      }
+    }
+    falling = []; sparks = [];
+    combo = 0; speed = 2.6;
+    camY = targetCam();
+    spawn();
+    updateScore();
+  }
+
+  function spawn() {
+    const top = stack[stack.length - 1];
+    const fromLeft = stack.length % 2 === 0;
+    cur = { x: fromLeft ? -top.w * 0.6 : W - top.w * 0.4, w: top.w, dir: fromLeft ? 1 : -1, hue: hueFor(stack.length) };
+  }
+
+  function targetCam() { return Math.max(0, stack.length * H - VH * 0.45); }
+
+  function screenY(level) { return VH - 90 - (level + 1) * H + camY; }
+
+  function updateScore() { scoreEl.textContent = stack.length - 1; }
+
+  function showCombo(text) {
+    comboEl.textContent = text;
+    comboEl.classList.add('show');
+    clearTimeout(showCombo.t);
+    showCombo.t = setTimeout(() => comboEl.classList.remove('show'), 700);
+  }
+
+  function drop() {
+    const top = stack[stack.length - 1];
+    const level = stack.length;
+    const diff = cur.x - top.x;
+
+    if (Math.abs(diff) <= PERFECT) {
+      combo++;
+      let w = top.w, x = top.x;
+      if (combo >= 3 && w < baseW) {
+        const grow = Math.min(8, baseW - w);
+        w += grow; x -= grow / 2;
+      }
+      stack.push({ x, w, hue: cur.hue });
+      burst(x + w / 2, level, w);
+      tone(note(combo), 0.18, 'sine', 0.14);
+      showCombo(combo >= 3 ? `Идеально ×${combo} · шире!` : `Идеально ×${combo}`);
+    } else {
+      const L = Math.max(cur.x, top.x), R = Math.min(cur.x + cur.w, top.x + top.w);
+      const overlap = R - L;
+      if (overlap <= 0) {
+        falling.push({ x: cur.x, w: cur.w, level, vy: 0, vx: cur.dir * 1.5, rot: 0, hue: cur.hue });
+        cur = null;
+        tone(130, 0.35, 'sawtooth', 0.08);
+        return gameOver();
+      }
+      combo = 0;
+      const cutX = diff > 0 ? R : cur.x;
+      const cutW = cur.w - overlap;
+      falling.push({ x: cutX, w: cutW, level, vy: 0, vx: diff > 0 ? 1.2 : -1.2, rot: 0, hue: cur.hue });
+      stack.push({ x: L, w: overlap, hue: cur.hue });
+      tone(note(0) * 0.75, 0.1, 'triangle', 0.1);
+    }
+    speed = Math.min(2.6 + stack.length * 0.07, 7);
+    updateScore();
+    spawn();
+  }
+
+  function burst(cx, level, w) {
+    if (reduceMotion) return;
+    for (let i = 0; i < 16; i++) {
+      const a = (i / 16) * Math.PI * 2;
+      sparks.push({ x: cx + Math.cos(a) * w / 2, level, oy: 0, vx: Math.cos(a) * 1.6, vy: Math.sin(a) * 1.6 - 1, life: 1 });
+    }
+  }
+
+  function gameOver() {
+    state = 'over';
+    t0 = performance.now();
+    const score = stack.length - 1;
+    const record = score > best;
+    if (record) { best = score; store.set('tower.best', best); bestEl.textContent = best; }
+    cardTitle.textContent = record ? `Новый рекорд: ${score}` : `Башня: ${score}`;
+    cardText.textContent = record
+      ? 'Выше ты ещё не строил. Попробуешь побить?'
+      : `Рекорд — ${best}. Ловите момент, когда края совпадают.`;
+    cardGo.textContent = 'Ещё раз';
+    card.hidden = false;
+  }
+
+  function start() {
+    reset(false);
+    state = 'play';
+    card.hidden = true;
+  }
+
+  function act() {
+    if (state === 'play') drop();
+    else if (state === 'over' && performance.now() - t0 > 350) start();
+    else if (state === 'intro') start();
+  }
+
+  // ---------- input ----------
+  canvas.addEventListener('pointerdown', e => { e.preventDefault(); act(); });
+  window.addEventListener('keydown', e => {
+    if (e.code === 'Space' || e.code === 'Enter') {
+      if (document.activeElement === muteBtn) return;
+      e.preventDefault(); act();
+    }
+  });
+  muteBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    muted = !muted;
+    store.set('tower.muted', muted ? '1' : '0');
+    muteBtn.textContent = muted ? 'Звук: выкл' : 'Звук: вкл';
+  });
+  window.addEventListener('resize', () => { resize(); if (state === 'intro') reset(true); });
+
+  // ---------- drawing ----------
+  function block(x, y, w, hue, alpha = 1) {
+    ctx.globalAlpha = alpha;
+    const g = ctx.createLinearGradient(0, y, 0, y + H);
+    g.addColorStop(0, `hsl(${hue} 80% 72%)`);
+    g.addColorStop(1, `hsl(${hue} 65% 52%)`);
+    ctx.fillStyle = g;
+    ctx.fillRect(x, y, w, H - 2);
+    ctx.fillStyle = `hsl(${hue} 90% 88% / .55)`;
+    ctx.fillRect(x, y, w, 3);
+    // lit windows: a detail of a night tower
+    ctx.fillStyle = `hsl(45 100% 80% / .85)`;
+    const cols = Math.floor(w / 18);
+    for (let i = 0; i < cols; i++) {
+      if (((i * 7 + Math.round(hue)) % 5) < 2) ctx.fillRect(x + 7 + i * 18, y + 11, 6, 8);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function draw(now) {
+    // sky shifts toward dawn as the tower grows
+    const h = Math.min(stack.length / 60, 1);
+    const sky = ctx.createLinearGradient(0, 0, 0, VH);
+    sky.addColorStop(0, `hsl(${248 - h * 20} 50% ${10 + h * 6}%)`);
+    sky.addColorStop(1, `hsl(${262 - h * 240} ${45 + h * 20}% ${18 + h * 22}%)`);
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, W, VH);
+
+    for (const s of stars) {
+      const y = ((s.y + camY * 0.3) % (VH + 40)) - 20;
+      const tw = reduceMotion ? 0.7 : 0.45 + 0.4 * Math.sin(now / 700 + s.p);
+      ctx.fillStyle = `rgba(244,236,220,${tw * (1 - h * 0.7)})`;
+      ctx.beginPath(); ctx.arc(s.x, y, s.r, 0, 7); ctx.fill();
+    }
+
+    // ground
+    const gy = screenY(-1) + H;
+    if (gy < VH) {
+      ctx.fillStyle = '#0b0920';
+      ctx.fillRect(0, gy - H + 2, W, VH);
+    }
+
+    stack.forEach((b, i) => {
+      const y = screenY(i);
+      if (y > -H && y < VH) block(b.x, y, b.w, b.hue);
+    });
+
+    for (const f of falling) {
+      const y = screenY(f.level) + f.vy;
+      ctx.save();
+      ctx.translate(f.x + f.w / 2, y + H / 2);
+      ctx.rotate(f.rot);
+      block(-f.w / 2, -H / 2, f.w, f.hue, 0.9);
+      ctx.restore();
+    }
+
+    for (const s of sparks) {
+      ctx.fillStyle = `rgba(255,182,92,${s.life})`;
+      ctx.fillRect(s.x - 2, screenY(s.level) + H / 2 + s.oy - 2, 4, 4);
+    }
+
+    if (cur) {
+      const y = screenY(stack.length);
+      // guide shadow onto the top of the tower
+      const top = stack[stack.length - 1];
+      ctx.fillStyle = 'rgba(255,255,255,.06)';
+      ctx.fillRect(top.x, y, top.w, H - 2);
+      block(cur.x, y, cur.w, cur.hue);
+    }
+  }
+
+  function step(now) {
+    if (cur && state !== 'over') {
+      cur.x += cur.dir * speed * (state === 'intro' ? 0.6 : 1);
+      const lo = -cur.w * 0.6, hi = W - cur.w * 0.4;
+      if (cur.x < lo) { cur.x = lo; cur.dir = 1; }
+      if (cur.x > hi) { cur.x = hi; cur.dir = -1; }
+    }
+    for (const f of falling) { f.dy = (f.dy || 0) + 0.5; f.vy += f.dy; f.x += f.vx; f.rot += f.vx * 0.01; }
+    falling = falling.filter(f => screenY(f.level) + f.vy < VH + 200);
+    for (const s of sparks) { s.x += s.vx; s.oy += s.vy; s.vy += 0.06; s.life -= 0.03; }
+    sparks = sparks.filter(s => s.life > 0);
+    const tc = targetCam();
+    camY += (tc - camY) * (reduceMotion ? 1 : 0.12);
+    draw(now);
+    requestAnimationFrame(step);
+  }
+
+  function boot() {
+    resize();
+    reset(true);
+    state = 'intro';
+    t0 = performance.now();
+    requestAnimationFrame(step);
+  }
+  boot();
+})();
+</script>
