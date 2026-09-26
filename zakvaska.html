@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Пекарня Закваска</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #eef1ee;
+    --surface: #ffffff;
+    --ink: #1c2530;
+    --muted: #5b6672;
+    --line: #d3d9d6;
+    --accent: #2f6b4f;
+    --accent-ink: #ffffff;
+    --crust: #b5702a;
+    --display: "Unbounded", "Arial Black", system-ui, sans-serif;
+    --body: "Golos Text", "Segoe UI", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #12171c; --surface: #1a2128; --ink: #e8ece9; --muted: #9aa5ae;
+      --line: #2c353d; --accent: #6fbf94; --accent-ink: #0f1a14; --crust: #e0a25a;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #12171c; --surface: #1a2128; --ink: #e8ece9; --muted: #9aa5ae;
+    --line: #2c353d; --accent: #6fbf94; --accent-ink: #0f1a14; --crust: #e0a25a;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0;
+    background: var(--bg); color: var(--ink);
+    font: 16px/1.6 var(--body);
+    padding-inline: 16px;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; padding-block: 28px 56px; display: flex; flex-direction: column; gap: 64px; }
+
+  header.top { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .logo { font: 700 18px/1 var(--display); letter-spacing: .02em; }
+  .logo span { color: var(--crust); }
+  nav { display: flex; gap: 20px; flex-wrap: wrap; font-size: 15px; }
+  nav a { color: var(--muted); text-decoration: none; }
+  nav a:hover, nav a:focus-visible { color: var(--ink); }
+  a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .hero { display: grid; grid-template-columns: 1.3fr 1fr; gap: 40px; align-items: end; }
+  .eyebrow { font: 500 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .12em; color: var(--accent); }
+  h1 { font: 700 clamp(36px, 7vw, 76px)/1.02 var(--display); letter-spacing: -.02em; margin: 14px 0 20px; text-wrap: balance; }
+  h1 em { font-style: normal; color: var(--crust); }
+  .lead { font-size: 18px; color: var(--muted); max-width: 52ch; margin: 0; }
+  .btns { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+  .btn { display: inline-block; padding: 12px 20px; border-radius: 999px; font-weight: 600; text-decoration: none; border: 1.5px solid var(--ink); color: var(--ink); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+  .loaf { width: 100%; max-width: 100%; aspect-ratio: 1; border-radius: 28px; background: var(--surface); border: 1px solid var(--line); display: grid; place-items: center; }
+  .loaf svg { width: 78%; height: auto; }
+
+  .today { font: 500 13px/1.4 var(--mono); color: var(--muted); display: flex; gap: 8px; align-items: center; margin-top: 18px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+  .dot.open { background: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent); }
+
+  h2 { font: 700 clamp(24px, 3.4vw, 34px)/1.15 var(--display); margin: 0 0 8px; text-wrap: balance; }
+  .sub { color: var(--muted); margin: 0 0 28px; max-width: 60ch; }
+
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .tab { font: 500 14px var(--body); padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; }
+  .tab[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .menu { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .menu li { display: grid; grid-template-columns: 1fr auto; gap: 4px 20px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+  .menu .name { font-weight: 600; font-size: 17px; }
+  .menu .price { font: 500 16px var(--mono); font-variant-numeric: tabular-nums; }
+  .menu .desc { color: var(--muted); font-size: 14px; grid-column: 1 / -1; }
+  .menu .meta { font: 400 12px var(--mono); color: var(--crust); }
+
+  .timeline { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0; border: 1px solid var(--line); border-radius: 20px; overflow: hidden; background: var(--surface); }
+  .step { padding: 22px 20px; border-right: 1px solid var(--line); }
+  .step:last-child { border-right: none; }
+  .step .time { font: 500 13px var(--mono); color: var(--accent); }
+  .step h3 { font: 600 17px/1.3 var(--body); margin: 8px 0 6px; }
+  .step p { margin: 0; color: var(--muted); font-size: 14px; }
+
+  .calc { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 28px; }
+  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+  .field label { font-size: 14px; color: var(--muted); display: flex; justify-content: space-between; }
+  .field label output { font: 500 14px var(--mono); color: var(--ink); }
+  input[type="range"] { width: 100%; accent-color: var(--accent); }
+  input[type="number"] { font: 500 16px var(--mono); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); width: 100%; }
+  .result { font-variant-numeric: tabular-nums; }
+  .result table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .result td { padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .result td:last-child { text-align: right; font: 500 15px var(--mono); }
+  .result tr.total td { border-bottom: none; font-weight: 600; padding-top: 14px; }
+  .note { font-size: 13px; color: var(--muted); margin-top: 14px; }
+
+  .visit { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 32px; }
+  .visit h3 { font: 500 12px var(--mono); text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin: 0 0 10px; }
+  .visit p { margin: 0; }
+  .hours { list-style: none; padding: 0; margin: 0; font-variant-numeric: tabular-nums; }
+  .hours li { display: flex; justify-content: space-between; padding: 4px 0; }
+  .hours li.now { color: var(--accent); font-weight: 600; }
+
+  footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 20px; }
+
+  @media (max-width: 760px) {
+    .hero, .calc { grid-template-columns: 1fr; }
+    .loaf { max-width: 360px; }
+    .step { border-right: none; border-bottom: 1px solid var(--line); }
+    .step:last-child { border-bottom: none; }
+    .calc { padding: 20px; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .loaf svg .steam { animation: rise 3.2s ease-in-out infinite; }
+    .loaf svg .steam:nth-child(2) { animation-delay: .6s; }
+    .loaf svg .steam:nth-child(3) { animation-delay: 1.2s; }
+    @keyframes rise { 0%,100% { transform: translateY(0); opacity: .9; } 50% { transform: translateY(-8px); opacity: .35; } }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="logo">ЗАКВА<span>СКА</span></div>
+    <nav aria-label="Разделы">
+      <a href="#menu">Меню</a>
+      <a href="#process">Как печём</a>
+      <a href="#calc">Калькулятор</a>
+      <a href="#visit">Адрес</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div>
+      <div class="eyebrow">Хлеб на живой закваске · с 2019</div>
+      <h1>Хлеб, который бродит <em>18&nbsp;часов</em></h1>
+      <p class="lead">Маленькая пекарня на углу. Мука с мельницы под Тулой, закваска по имени Глаша и печь, которая разогревается до 250&nbsp;°C к шести утра.</p>
+      <div class="btns">
+        <a class="btn primary" href="#menu">Смотреть меню</a>
+        <a class="btn" href="#calc">Испечь дома</a>
+      </div>
+      <div class="today"><span class="dot" id="dot"></span><span id="status">Проверяем часы работы…</span></div>
+    </div>
+    <div class="loaf" aria-hidden="true">
+      <svg viewBox="0 0 200 170">
+        <g fill="none" stroke="var(--muted)" stroke-width="3" stroke-linecap="round">
+          <path class="steam" d="M78 34c-6-8 6-14 0-22"/>
+          <path class="steam" d="M100 30c-6-8 6-14 0-22"/>
+          <path class="steam" d="M122 34c-6-8 6-14 0-22"/>
+        </g>
+        <ellipse cx="100" cy="112" rx="84" ry="46" fill="var(--crust)"/>
+        <ellipse cx="100" cy="104" rx="80" ry="40" fill="color-mix(in srgb, var(--crust) 75%, #ffffff)"/>
+        <g fill="none" stroke="var(--crust)" stroke-width="5" stroke-linecap="round">
+          <path d="M52 92c14 10 30 12 44 6"/>
+          <path d="M84 84c14 10 30 12 44 6"/>
+          <path d="M112 90c12 8 24 10 36 4"/>
+        </g>
+        <ellipse cx="100" cy="158" rx="70" ry="5" fill="var(--line)"/>
+      </svg>
+    </div>
+  </section>
+
+  <section id="menu">
+    <h2>Меню на сегодня</h2>
+    <p class="sub">Хлеб выходит из печи в 8:00 и 13:00. Круассаны обычно заканчиваются к полудню.</p>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-bread" aria-selected="true" data-cat="bread">Хлеб</button>
+      <button class="tab" role="tab" id="tab-pastry" aria-selected="false" data-cat="pastry">Выпечка</button>
+      <button class="tab" role="tab" id="tab-drinks" aria-selected="false" data-cat="drinks">Напитки</button>
+    </div>
+    <ul class="menu" id="menuList"></ul>
+  </section>
+
+  <section id="process">
+    <h2>Как рождается буханка</h2>
+    <p class="sub">Один цикл от кормления закваски до прилавка занимает почти сутки.</p>
+    <div class="timeline">
+      <div class="step"><div class="time">14:00 · день 1</div><h3>Кормим закваску</h3><p>Ржаная мука и вода 1:1, закваска удваивается за 5–6 часов.</p></div>
+      <div class="step"><div class="time">20:00</div><h3>Замес и автолиз</h3><p>Мука отдыхает с водой 40 минут, потом соль 2% и закваска 20%.</p></div>
+      <div class="step"><div class="time">20:40–00:30</div><h3>Складывания</h3><p>Четыре серии растяжений каждые 45 минут вместо долгого замеса.</p></div>
+      <div class="step"><div class="time">00:30–06:00</div><h3>Холодная расстойка</h3><p>Тесто спит в корзинках при +4&nbsp;°C, набирая кислинку.</p></div>
+      <div class="step"><div class="time">06:00–08:00</div><h3>Выпечка</h3><p>20 минут с паром при 250&nbsp;°C, ещё 25 без пара при 230&nbsp;°C.</p></div>
+    </div>
+  </section>
+
+  <section id="calc">
+    <h2>Калькулятор теста</h2>
+    <p class="sub">Пекарский процент: всё считается от веса муки. Подвигайте ползунки и получите рецепт для домашней духовки.</p>
+    <div class="calc">
+      <div>
+        <div class="field">
+          <label for="flour">Мука, г</label>
+          <input type="number" id="flour" value="500" min="100" max="5000" step="50">
+        </div>
+        <div class="field">
+          <label for="hyd">Гидратация <output id="hydOut">72%</output></label>
+          <input type="range" id="hyd" min="55" max="90" value="72">
+        </div>
+        <div class="field">
+          <label for="lev">Закваска <output id="levOut">20%</output></label>
+          <input type="range" id="lev" min="5" max="40" value="20">
+        </div>
+        <div class="field">
+          <label for="salt">Соль <output id="saltOut">2.0%</output></label>
+          <input type="range" id="salt" min="1.5" max="2.5" step="0.1" value="2">
+        </div>
+      </div>
+      <div class="result">
+        <table>
+          <tbody>
+            <tr><td>Мука</td><td id="rFlour"></td></tr>
+            <tr><td>Вода</td><td id="rWater"></td></tr>
+            <tr><td>Закваска (100% влажности)</td><td id="rLev"></td></tr>
+            <tr><td>Соль</td><td id="rSalt"></td></tr>
+            <tr class="total"><td>Вес теста</td><td id="rTotal"></td></tr>
+          </tbody>
+        </table>
+        <p class="note" id="hint"></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="visit" class="visit">
+    <div>
+      <h3>Адрес</h3>
+      <p>ул. Мельничная, 7<br>вход со двора, ищите запах</p>
+    </div>
+    <div>
+      <h3>Часы работы</h3>
+      <ul class="hours" id="hours"></ul>
+    </div>
+    <div>
+      <h3>Предзаказ</h3>
+      <p>Целые буханки можно отложить за день: <span style="font-family: var(--mono)">+7 900 000-00-00</span></p>
+    </div>
+  </section>
+
+  <footer>Пекарня «Закваска» — вымышленное место, придуманное для демонстрации. Хлеб, к сожалению, тоже.</footer>
+</div>
+
+<script>
+  const MENU = {
+    bread: [
+      { name: "Пшеничный деревенский", price: 290, meta: "750 г · 75% воды", desc: "Хрустящая корка, открытый мякиш, лёгкая кислинка." },
+      { name: "Ржаной с кориандром", price: 260, meta: "700 г · 100% ржи", desc: "Плотный, пряный, хранится до пяти дней." },
+      { name: "Цельнозерновой с семечками", price: 320, meta: "800 г · 30% цельной муки", desc: "Подсолнечник, лён и тыквенные семечки внутри и сверху." },
+      { name: "Багет", price: 140, meta: "250 г", desc: "Выходит дважды в день. Лучше съесть в течение шести часов." }
+    ],
+    pastry: [
+      { name: "Круассан", price: 180, meta: "27 слоёв", desc: "Французское масло 82%, ламинируем вручную." },
+      { name: "Улитка с корицей", price: 190, meta: "на закваске", desc: "Кардамон в тесте, корица и коричневый сахар в начинке." },
+      { name: "Кекс морковный", price: 210, meta: "кусок", desc: "Грецкий орех, сливочный сыр и апельсиновая цедра." }
+    ],
+    drinks: [
+      { name: "Фильтр-кофе", price: 160, meta: "250 мл", desc: "Эфиопия, светлая обжарка, меняем зерно раз в месяц." },
+      { name: "Капучино", price: 210, meta: "300 мл", desc: "Можно на овсяном молоке без доплаты." },
+      { name: "Квас домашний", price: 150, meta: "400 мл", desc: "Бродит на корках нашего ржаного хлеба." }
+    ]
+  };
+
+  const list = document.getElementById("menuList");
+  const rub = n => n.toLocaleString("ru-RU") + " ₽";
+  function renderMenu(cat) {
+    list.innerHTML = MENU[cat].map(i => `
+      <li><div><div class="name">${i.name}</div><div class="meta">${i.meta}</div></div>
+      <div class="price">${rub(i.price)}</div><div class="desc">${i.desc}</div></li>`).join("");
+    document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", t.dataset.cat === cat));
+  }
+  document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => renderMenu(t.dataset.cat)));
+  renderMenu("bread");
+
+  // Hours: index = getDay() (0 = Sunday)
+  const HOURS = [[9, 17], null, [7, 20], [7, 20], [7, 20], [7, 21], [8, 21]];
+  const DAYS = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
+  const now = new Date(), today = now.getDay();
+  const pad = h => String(h).padStart(2, "0") + ":00";
+  document.getElementById("hours").innerHTML = [1, 2, 3, 4, 5, 6, 0].map(d =>
+    `<li class="${d === today ? "now" : ""}"><span>${DAYS[d]}</span><span>${HOURS[d] ? pad(HOURS[d][0]) + "–" + pad(HOURS[d][1]) : "выходной"}</span></li>`
+  ).join("");
+  const h = HOURS[today], hr = now.getHours() + now.getMinutes() / 60;
+  const open = h && hr >= h[0] && hr < h[1];
+  document.getElementById("dot").classList.toggle("open", !!open);
+  document.getElementById("status").textContent = open
+    ? `Открыто до ${pad(h[1])}`
+    : h && hr < h[0] ? `Сегодня откроемся в ${pad(h[0])}` : "Сейчас закрыто";
+
+  // Dough calculator
+  const $ = id => document.getElementById(id);
+  const g = n => Math.round(n) + " г";
+  function calc() {
+    const flour = Math.max(0, +$("flour").value || 0);
+    const hyd = +$("hyd").value, lev = +$("lev").value, salt = +$("salt").value;
+    $("hydOut").textContent = hyd + "%";
+    $("levOut").textContent = lev + "%";
+    $("saltOut").textContent = salt.toFixed(1) + "%";
+    const water = flour * hyd / 100, levain = flour * lev / 100, s = flour * salt / 100;
+    $("rFlour").textContent = g(flour);
+    $("rWater").textContent = g(water);
+    $("rLev").textContent = g(levain);
+    $("rSalt").textContent = g(s);
+    $("rTotal").textContent = g(flour + water + levain + s);
+    $("hint").textContent = hyd >= 80 ? "Очень влажное тесто: работайте мокрыми руками и готовьтесь к плоской буханке."
+      : hyd <= 62 ? "Плотное тесто, легко формуется. Подойдёт для бубликов и сэндвичного хлеба."
+      : "Хороший диапазон для первого хлеба: держит форму и даёт открытый мякиш.";
+  }
+  ["flour", "hyd", "lev", "salt"].forEach(id => $(id).addEventListener("input", calc));
+  calc();
+</script>
+</body>
+</html>
